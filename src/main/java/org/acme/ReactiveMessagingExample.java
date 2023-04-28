@@ -4,6 +4,7 @@ import org.eclipse.microprofile.reactive.messaging.Incoming;
 import org.eclipse.microprofile.reactive.messaging.Message;
 import org.eclipse.microprofile.reactive.messaging.Outgoing;
 
+import io.quarkus.runtime.configuration.ConfigUtils;
 import io.smallrye.mutiny.Multi;
 import jakarta.enterprise.context.ApplicationScoped;
 
@@ -11,9 +12,17 @@ import jakarta.enterprise.context.ApplicationScoped;
 @ApplicationScoped
 public class ReactiveMessagingExample
 {
+  {
+    System.out.println("#Observes: The application is starting... ." + " Profile is: " + ConfigUtils.getProfiles() );
+  }
   //generate --> [ source-a ]
   @Outgoing("source-a")
   public Multi<String> source() {
+    return Multi.createFrom().items("hello", "from", "SmallRye", "reactive", "messaging");
+  }
+  //generate --> [ source-a ]
+  @Outgoing("topic2")
+  public Multi<String> source1() {
     return Multi.createFrom().items("hello", "from", "SmallRye", "reactive", "messaging");
   }
 
@@ -27,7 +36,7 @@ public class ReactiveMessagingExample
     return in.withPayload(payload);
   }
 
-  //[ processed-a ] --> process --> [ sink-a]
+  //[ processed-a ] --> filter --> [ sink-a]
   @Incoming("processed-a")
   @Outgoing("sink-a")
   public Multi<String> filter(Multi<String> input) {
